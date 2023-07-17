@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  fastapi:
+    entrypoint: ./entrypoint-dev.sh
+    ports:
+      - "127.0.0.1:8080:80"
+    volumes:
+      - ./src:/app
+  postgres:
+    ports:
+      - "127.0.0.1:5432:5432"

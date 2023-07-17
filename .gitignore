@@ -1,0 +1,8 @@
+.env
+.venv
+__pycache__
+.data
+.vscode
+.env.tests
+tests/logs/pytest.output.log
+tests/logs/tests.log

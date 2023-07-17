@@ -1,0 +1,24 @@
+version: '3'
+services:
+  fastapi:
+    command:
+      [
+        "gunicorn",
+        "main:app",
+        "-b",
+        "0.0.0.0:80",
+        "-w",
+        "4",
+        "-k",
+        "uvicorn.workers.UvicornWorker"
+      ]
+    healthcheck:
+      test: []
+  tests:
+    image: insurance:${INSURANCE_API_VERSION}
+    entrypoint: /tests/tests-entrypoint.sh
+    volumes:
+      - ./tests:/tests/
+    depends_on:
+      postgres:
+        condition: service_healthy

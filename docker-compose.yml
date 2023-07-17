@@ -1,0 +1,51 @@
+version: '3'
+services:
+  fastapi:
+    image: insurance:${INSURANCE_API_VERSION}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      PROJECT_NAME: ${PROJECT_NAME}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DATABASE: ${POSTGRES_DATABASE}
+    volumes:
+      - socket:/app-socket/
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import socket; sock = socket.socket(socket.AF_UNIX); sock.connect('/app-socket/async.sock')"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:12
+    environment:
+      PGDATA: /data/postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DATABASE}
+    volumes:
+      - pg:/data/postgres
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: bash -c 'cat < /dev/null > /dev/tcp/localhost/5432'
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+volumes:
+  socket:
+  pg:
